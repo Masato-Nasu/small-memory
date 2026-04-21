@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="80" fill="#ffffff"/>
+  <rect x="68" y="68" width="376" height="376" rx="28" fill="#f4f4f4" stroke="#dddddd" stroke-width="8"/>
+  <text x="256" y="250" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="46" fill="#666666" letter-spacing="8">SMALL</text>
+  <text x="256" y="310" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" font-size="46" fill="#666666" letter-spacing="8">MEMORY</text>
+</svg>

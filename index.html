@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>SMALL MEMORY</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    :root {
+      --bg: #ffffff;
+      --text: #555555;
+      --font-size: clamp(20px, 2.4vw, 30px);
+      --line-height: 1.6;
+      --padding: 6%;
+      --font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+      --ui-border: rgba(0,0,0,.08);
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      background: #f4f4f4;
+      color: #222;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    }
+    body { overflow-x: hidden; }
+    .app {
+      min-height: 100dvh;
+      padding: env(safe-area-inset-top) 10px calc(env(safe-area-inset-bottom) + 8px);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .topbar {
+      display: grid;
+      grid-template-columns: auto 1fr auto auto auto auto auto;
+      gap: 8px;
+      align-items: center;
+      min-height: 44px;
+    }
+    .title {
+      font-size: 11px;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+      color: #777;
+      white-space: nowrap;
+    }
+    .page-meta {
+      justify-self: center;
+      font-size: 14px;
+      color: #777;
+      white-space: nowrap;
+    }
+    .header-fill {
+      min-height: 30px;
+      border-radius: 999px;
+      border: 1px solid var(--ui-border);
+      background: rgba(255,255,255,.72);
+      min-width: 0;
+    }
+    button {
+      appearance: none;
+      border: 1px solid var(--ui-border);
+      background: rgba(255,255,255,.95);
+      color: #333;
+      border-radius: 999px;
+      min-height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    button:active { transform: translateY(1px); }
+    .square-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+    .square {
+      position: relative;
+      width: min(99vw, 1400px);
+      aspect-ratio: 1 / 1;
+      background: var(--bg);
+      border-radius: 20px;
+      box-shadow: 0 6px 18px rgba(0,0,0,.04);
+      border: 1px solid rgba(0,0,0,.06);
+      overflow: hidden;
+    }
+    .page-text {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      padding: var(--padding);
+      color: var(--text);
+      font-family: var(--font-family);
+      font-size: var(--font-size);
+      line-height: var(--line-height);
+      text-align: center;
+      background: transparent;
+      border: 0;
+      resize: none;
+      outline: none;
+      overflow: hidden;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      caret-color: #444;
+    }
+    .page-text.align-left { text-align: left; }
+    .bottom {
+      display: grid;
+      gap: 6px;
+      padding-top: 2px;
+    }
+    .controls, .exports {
+      display: grid;
+      gap: 6px;
+    }
+    .controls.top { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+    .controls.mid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .exports { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .control-btn, .export-btn {
+      min-height: 28px;
+      border-radius: 14px;
+      font-size: 11px;
+      padding: 0 8px;
+    }
+    .panel {
+      display: none;
+      background: rgba(255,255,255,.92);
+      border: 1px solid var(--ui-border);
+      border-radius: 18px;
+      padding: 12px;
+      gap: 8px;
+    }
+    .panel.show { display: grid; }
+    .row { display: grid; gap: 6px; }
+    .row label {
+      font-size: 12px;
+      color: #666;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .chip {
+      min-height: 30px;
+      border-radius: 999px;
+      padding: 0 10px;
+      font-size: 12px;
+    }
+    .chip.active { background: #222; color: #fff; border-color: #222; }
+    input[type="range"] { width: 100%; }
+    input[type="color"] {
+      width: 100%;
+      height: 36px;
+      padding: 0;
+      border: 1px solid var(--ui-border);
+      border-radius: 12px;
+      background: #fff;
+    }
+    .help {
+      font-size: 12px;
+      color: #888;
+      text-align: center;
+    }
+    @media (max-width: 900px) {
+      .square { width: min(99vw, 99dvw); }
+      .title { font-size: 10px; }
+      .page-meta { font-size: 13px; }
+    }
+    @media (max-width: 640px) {
+      .app { padding-left: 4px; padding-right: 4px; gap: 8px; }
+      .topbar { gap: 4px; grid-template-columns: auto 1fr auto auto auto auto auto; }
+      .title { font-size: 9px; letter-spacing: .12em; }
+      .square { width: min(99vw, 99dvw); border-radius: 18px; }
+      .controls.top { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .controls.mid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .exports { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .control-btn, .export-btn, button { font-size: 11px; padding: 0 8px; min-height: 30px; }
+      .page-text { font-size: clamp(18px, 5.4vw, 28px); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="title">SMALL MEMORY</div>
+      <div class="header-fill"></div>
+      <button id="prevPage" aria-label="Previous page">←</button>
+      <div class="page-meta" id="pageMeta">Page 1 / 1</div>
+      <button id="nextPage" aria-label="Next page">→</button>
+      <button id="deletePage">Delete</button>
+      <button id="addPage">＋</button>
+    </div>
+
+    <div class="square-wrap">
+      <div class="square" id="square">
+        <textarea id="pageText" class="page-text" placeholder="Type here" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <div class="bottom">
+      <div class="controls top">
+        <button class="control-btn" data-panel="font">Font</button>
+        <button class="control-btn" data-panel="size">Size</button>
+        <button class="control-btn" data-panel="text">Text</button>
+        <button class="control-btn" data-panel="bg">BG</button>
+        <button class="control-btn" data-panel="align">Align</button>
+      </div>
+      <div class="controls mid">
+        <button class="control-btn" data-panel="line">Line</button>
+        <button class="control-btn" data-panel="margin">Margin</button>
+        <button class="export-btn" id="exportJpeg">JPEG</button>
+        <button class="export-btn" id="saveJson">JSON</button>
+      </div>
+      <div class="exports">
+        <button class="export-btn" id="loadJson">Open JSON</button>
+        <button class="export-btn" id="exportTxt">TXT</button>
+        <button class="export-btn" id="newDoc">New</button>
+      </div>
+
+      <div class="panel" id="panel-font">
+        <div class="row">
+          <label>Font</label>
+          <div class="chips">
+            <button class="chip active" data-font="block">Block</button>
+            <button class="chip" data-font="mincho">Mincho</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-size">
+        <div class="row">
+          <label>Size</label>
+          <input id="sizeRange" type="range" min="16" max="56" step="1" value="22" />
+        </div>
+      </div>
+
+      <div class="panel" id="panel-text">
+        <div class="row">
+          <label>Text color</label>
+          <input id="textColor" type="color" value="#555555" />
+        </div>
+      </div>
+
+      <div class="panel" id="panel-bg">
+        <div class="row">
+          <label>Background</label>
+          <input id="bgColor" type="color" value="#ffffff" />
+        </div>
+      </div>
+
+      <div class="panel" id="panel-align">
+        <div class="row">
+          <label>Align</label>
+          <div class="chips">
+            <button class="chip active" data-align="center">Center</button>
+            <button class="chip" data-align="left">Left</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel" id="panel-line">
+        <div class="row">
+          <label>Line height</label>
+          <input id="lineRange" type="range" min="1.1" max="2.2" step="0.05" value="1.6" />
+        </div>
+      </div>
+
+      <div class="panel" id="panel-margin">
+        <div class="row">
+          <label>Margin</label>
+          <input id="marginRange" type="range" min="5" max="18" step="1" value="9" />
+        </div>
+      </div>
+
+      <input id="jsonFileInput" type="file" accept="application/json" hidden />
+      <div class="help">One square, one memory.</div>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
